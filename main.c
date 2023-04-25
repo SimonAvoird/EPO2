@@ -1,11 +1,27 @@
 int field[13][13];
 
+field = {
+    {},
+    {},
+    {},
+    {},
+    {},
+    {},
+    {},
+    {},
+    {},
+    {},
+    {},
+    {},
+    {}
+};
 void loop()
 {
 
 }
 
-int field()
+
+int field_define()
 {
     
 }
