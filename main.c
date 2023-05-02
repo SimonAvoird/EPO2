@@ -1,6 +1,9 @@
 #include<stdio.h>
 #include<stdlib.h>
 #define s1 = [12][4];
+struct station {
+    int row,column;
+};
 int maze[13][13] = {
     {-1, -1, -1, -1, 0, -1, 0, -1, 0, -1, -1, -1, -1},
     {-1, -1, -1, -1, 0, -1, 0, -1, 0, -1, -1, -1, -1},
@@ -43,13 +46,13 @@ int field_define(int stop)
     return 0;
 }
 
-int route_finder(int begin[], int end[])
+int route_finder(struct station begin, struct station end)
 {
     int l,i,j, index = 0;
-    i = end[0];
-    j = end[1];
+    i = end.row;
+    j = end.column;
     maze[i][j] = 1;
-    while(maze[begin[0]][begin[1]] == 0)
+    while(maze[begin.row][begin.column] == 0)
     {
         index++;
         for(int k = 0; k < 13; k++)
@@ -81,26 +84,26 @@ int route_finder(int begin[], int end[])
     }
 }
 
-int stations(int station) // this converts the station number from the input to an array of coordinates in the matrix
+struct station stations(int station) // this converts the station number from the input to an array of coordinates in the matrix
 {
-    int coords[2];
+    struct station coords;
     switch(station)
     {
         case(1): case(2): case(3):
-            coords[0] = 12;
-            coords[1] = station * 2 + 2;
+            coords.row = 12;
+            coords.column = station * 2 + 2;
             break;
         case(4): case(5): case(6):
-            coords[0] = 12 - (station * 2 + 2);
-            coords[1] = 12;
+            coords.row = 12 - ((station - 3) * 2 + 2);
+            coords.column = 12;
             break;
         case(7): case(8): case(9):
-            coords[0] = 0;
-            coords[1] = 12 - (station * 2 + 2);
+            coords.row = 0;
+            coords.column = 12 - ((station - 6) * 2 + 2);
             break;
         case(10): case(11): case(12):
-            coords[0] = station * 2 + 2;
-            coords[1] = 0;
+            coords.row = (station - 9) * 2 + 2;
+            coords.column = 0;
             break;
     }
     return coords;
@@ -125,7 +128,7 @@ int print_maze()
 
 int main()
 {
-    int k = 0,stop, begin_station, end_station, begin[2], end[2];
+    int k = 0,stop, begin_station, end_station;
     print_maze();
     scanf("%d", &cross_in[0]);
     stop = cross_in[0]*2 + 1;
@@ -135,8 +138,9 @@ int main()
     }
     scanf("%d %d", &begin_station, &end_station);
     field_define(stop);
-    
-    route_finder(begin_station, end_station);
+    struct station begin = stations(begin_station);
+    struct station end = stations(end_station);
+    route_finder(begin, end);
     print_maze();
     return 0;
 }
