@@ -1,9 +1,16 @@
 #include<stdio.h>
 #include<stdlib.h>
-#define s1 = [12][4];
-struct station {
+#include<string.h>
+
+struct Station {
     int row,column;
 };
+struct Cross {
+    char cross;
+    int row;
+    int column;
+};
+struct Cross route[25];
 int maze[13][13] = {
     {-1, -1, -1, -1, 0, -1, 0, -1, 0, -1, -1, -1, -1},
     {-1, -1, -1, -1, 0, -1, 0, -1, 0, -1, -1, -1, -1},
@@ -46,7 +53,7 @@ int field_define(int stop)
     return 0;
 }
 
-int route_finder(struct station begin, struct station end)
+int route_finder(struct Station begin, struct Station end)
 {
     int l,i,j, index = 0;
     i = end.row;
@@ -82,11 +89,12 @@ int route_finder(struct station begin, struct station end)
         }
         
     }
+    return 0;
 }
 
-struct station stations(int station) // this converts the station number from the input to an array of coordinates in the matrix
+struct Station stations(int station) // this converts the station number from the input to an array of coordinates in the matrix
 {
-    struct station coords;
+    struct Station coords;
     switch(station)
     {
         case(1): case(2): case(3):
@@ -107,12 +115,49 @@ struct station stations(int station) // this converts the station number from th
             break;
     }
     return coords;
-}   
-int print_maze()
+}  
+int route_define(struct Station begin, struct Station end)
+{
+    int index = maze[end.row][end.column];
+    int i = end.row;
+    int j = end.column;
+    int amount = (index - 3) / 2;
+    route[amount].cross = 'e';
+    amount--;
+    while(index > 0)
+    {
+        if(i%2 == 0 && j&2 == 0 && i != 0 && i != 12 && j != 0 && j != 12)
+        {
+            route[amount].cross = 'c';
+            route[amount].row = (i - 2)/2;
+            route[amount].column = (j-2)/2;
+            amount--; 
+        }
+        if(maze[i+1][j] == index - 1)
+        {   
+            i++; 
+        }
+        else if(maze[i][j+1] == index - 1)
+        {   
+            j++; 
+        }
+        else if(maze[i-1][j] == index - 1)
+        {   
+            i--; 
+        }
+        else if(maze[i][j-1] == index - 1)
+        {   
+            j--; 
+        }
+        index--;
+    }
+    return 0;
+}
+int print_maze(void)
 {
     for(int i = 0; i < 13; i++) {
         for(int j = 0; j < 13; j++) {
-            if(maze[i][j] < 0)
+            if(maze[i][j] < 0 || maze[i][j] > 9)
             {
                 printf(" %d", maze[i][j]);
             }
@@ -123,12 +168,11 @@ int print_maze()
         }
         printf("\n");
     }
-    return 0;
 }
 
-int main()
+int main(void)
 {
-    int k = 0,stop, begin_station, end_station;
+    int k = 0, i = 0,stop, begin_station, end_station;
     print_maze();
     scanf("%d", &cross_in[0]);
     stop = cross_in[0]*2 + 1;
@@ -138,9 +182,14 @@ int main()
     }
     scanf("%d %d", &begin_station, &end_station);
     field_define(stop);
-    struct station begin = stations(begin_station);
-    struct station end = stations(end_station);
+    struct Station begin = stations(begin_station);
+    struct Station end = stations(end_station);
     route_finder(begin, end);
     print_maze();
-    return 0;
+    route_define(begin, end);
+    while(route[i].cross != 'e')
+    {
+        printf("%c %d %d", route[i].cross, route[i].row, route[i].column);
+        i++;
+    }
 }
