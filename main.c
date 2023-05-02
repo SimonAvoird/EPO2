@@ -118,20 +118,18 @@ struct Station stations(int station) // this converts the station number from th
 }  
 int route_define(struct Station begin, struct Station end)
 {
-    int index = maze[end.row][end.column];
-    int i = end.row;
-    int j = end.column;
-    int amount = (index - 3) / 2;
-    route[amount].cross = 'e';
-    amount--;
+    int index = maze[begin.row][begin.column];
+    int i = begin.row;
+    int j = begin.column;
+    int amount = 0;
     while(index > 0)
     {
-        if(i%2 == 0 && j&2 == 0 && i != 0 && i != 12 && j != 0 && j != 12)
+        if((i % 2 == 0) && (j % 2 == 0) && (i != 0) && (i != 12) && (j != 0) && (j != 12))
         {
             route[amount].cross = 'c';
             route[amount].row = (i - 2)/2;
             route[amount].column = (j-2)/2;
-            amount--; 
+            amount++; 
         }
         if(maze[i+1][j] == index - 1)
         {   
@@ -151,6 +149,7 @@ int route_define(struct Station begin, struct Station end)
         }
         index--;
     }
+    route[amount+1].cross = 'e';
     return 0;
 }
 int print_maze(void)
@@ -189,7 +188,7 @@ int main(void)
     route_define(begin, end);
     while(route[i].cross != 'e')
     {
-        printf("%c %d %d", route[i].cross, route[i].row, route[i].column);
+        printf("%c%d%d ", route[i].cross, route[i].row, route[i].column);
         i++;
     }
 }
