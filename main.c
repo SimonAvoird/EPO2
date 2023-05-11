@@ -169,6 +169,35 @@ int print_maze(void)                                                            
     }
 }
 
+int direction(void)
+{
+    int i,j, x = 0, y;
+    int n=0,e=0,s=0,w=0;
+    char direction;
+    while(x=0)
+    {
+            switch(maze[i-1][j])
+            {
+                case(0):
+                    direction = n;
+                    x=1;
+                    break;
+                case(-1):
+                    n = -1;
+                    break;
+                case(1):
+                    n = 1;
+                    break;
+            }
+            if(x=1)
+            {
+                break;
+            }
+
+    } 
+    
+}
+
 int main(void)
 {
     int k = 0, i = 0,stop, begin_station, end_station;
