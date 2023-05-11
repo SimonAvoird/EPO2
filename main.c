@@ -28,6 +28,7 @@ int maze[13][13] = {                                                            
 };
 int cross_in[81];
 char cross_dir[40];
+char output[25][8];
 int field_define(int stop)                                                              //function to put the mines in the array
 {
     int i,j,l;
@@ -249,7 +250,7 @@ int direction(void)
     
 }
 
-int main(void)
+int route_maker(void)
 {
     int k = 0, i = 0,stop, begin_station, end_station;
     print_maze();                                                                       //print the initial maze
@@ -271,4 +272,18 @@ int main(void)
         printf("%c%d%d ", route[i].cross, route[i].row, route[i].column);
         i++;
     }
+}
+
+int synth_output(void)
+{
+    int i = 0;
+    while(route[i].cross != 'e')
+    {
+        
+    }
+}
+int main(void)
+{
+    route_maker();
+
 }
