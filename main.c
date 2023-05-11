@@ -174,12 +174,12 @@ int direction(void)
     int i,j, x = 0, y;
     int n=0,e=0,s=0,w=0;
     char direction;
-    while(x=0)
+    while(x==0)
     {
-            switch(maze[i-1][j])
+            switch(maze[i][j-1])
             {
                 case(0):
-                    direction = n;
+                    direction = 'w';
                     x=1;
                     break;
                 case(-1):
@@ -188,8 +188,59 @@ int direction(void)
                 case(1):
                     n = 1;
                     break;
+                 if(x==1)
+            {
+                break;
             }
-            if(x=1)
+            }
+
+            switch(maze[i-1][j])
+            {
+                case(0):
+                    direction = 'n';
+                    x=1;
+                    break;
+                case(-1):
+                    n = -1;
+                    break;
+                case(1):
+                    n = 1;
+                    break;
+            if(x==1)
+            {
+                break;
+            }
+
+            switch(maze[i][j+1])
+            {
+                case(0):
+                    direction = 'e';
+                    x=1;
+                    break;
+                case(-1):
+                    n = -1;
+                    break;
+                case(1):
+                    n = 1;
+                    break;
+            if(x==1)
+            {
+                break;
+            }
+
+            switch(maze[i+1][j])
+            {
+                case(0):
+                    direction = 's';
+                    x=1;
+                    break;
+                case(-1):
+                    n = -1;
+                    break;
+                case(1):
+                    n = 1;
+                    break;
+            if(x==1)
             {
                 break;
             }
