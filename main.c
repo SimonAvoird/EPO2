@@ -28,6 +28,7 @@ int maze[13][13] = {                                                            
 };
 int cross_in[81];
 char cross_dir[40];
+char output[25][8];
 int field_define(int stop)                                                              //function to put the mines in the array
 {
     int i,j,l;
@@ -169,7 +170,87 @@ int print_maze(void)                                                            
     }
 }
 
-int main(void)
+int direction(void)
+{
+    int i,j, x = 0, y;
+    int n=0,e=0,s=0,w=0;
+    char direction;
+    while(x==0)
+    {
+            switch(maze[i][j-1])
+            {
+                case(0):
+                    direction = 'w';
+                    x=1;
+                    break;
+                case(-1):
+                    n = -1;
+                    break;
+                case(1):
+                    n = 1;
+                    break;
+                 if(x==1)
+            {
+                break;
+            }
+            }
+
+            switch(maze[i-1][j])
+            {
+                case(0):
+                    direction = 'n';
+                    x=1;
+                    break;
+                case(-1):
+                    n = -1;
+                    break;
+                case(1):
+                    n = 1;
+                    break;
+            if(x==1)
+            {
+                break;
+            }
+
+            switch(maze[i][j+1])
+            {
+                case(0):
+                    direction = 'e';
+                    x=1;
+                    break;
+                case(-1):
+                    n = -1;
+                    break;
+                case(1):
+                    n = 1;
+                    break;
+            if(x==1)
+            {
+                break;
+            }
+
+            switch(maze[i+1][j])
+            {
+                case(0):
+                    direction = 's';
+                    x=1;
+                    break;
+                case(-1):
+                    n = -1;
+                    break;
+                case(1):
+                    n = 1;
+                    break;
+            if(x==1)
+            {
+                break;
+            }
+
+    } 
+    
+}
+
+int route_maker(void)
 {
     int k = 0, i = 0,stop, begin_station, end_station;
     print_maze();                                                                       //print the initial maze
@@ -191,4 +272,18 @@ int main(void)
         printf("%c%d%d ", route[i].cross, route[i].row, route[i].column);
         i++;
     }
+}
+
+int synth_output(void)
+{
+    int i = 0;
+    while(route[i].cross != 'e')
+    {
+        
+    }
+}
+int main(void)
+{
+    route_maker();
+
 }
