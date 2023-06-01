@@ -359,7 +359,11 @@ int route_define_c(void)  //change inputs                            //function 
         {   
             j--; 
         }
-        index--;                                                                        //lower index value, so it goes to the next maze cell
+        if(index == 1)
+        {
+            break;
+        }
+        index--;                                                                    //lower index value, so it goes to the next maze cell
     }
     find_current[0] = route[0]; //if mine is found we can decide which of these is our current location
     find_current[1] = route[1];
@@ -384,19 +388,29 @@ int main(void)
 {
     current_coord.row = 12;
     current_coord.column = 4;  //these are the coordinates of the start location
-    int mine_found = 0;
+    int mine_found = 0, j = 0;
     for (int i=0; i <= 13; ++i)
     {
         while(mine_found == 0){
-            direction();
+            direction(); //this function finds the closest non-checked road
             print_maze(); //unnesecarry but I want to see if it works
             printf("\n");
-            route_define_c();
+            route_define_c(); //this function generates a route to the road found in direction
+            while(route[j].cross != 'e')                                                        //print the crossroad array
+            {
+                printf("%c%d%d ", route[j].cross, route[j].row, route[j].column);
+                route[j].cross = 0;
+                route[j].row = 0;
+                route[j].column = 0;
+                j++;
+            }
+            printf("\n");
+            route[j].cross = 0;
             clear_board();
             double p = 0.1;
             mine_found = bernoulli(p);
             //wait untill we have an update that the robot has completed its path ##but dont know how I get this signal
-            find_curr_location(mine_found);
+            find_curr_location(mine_found); //defines the location of the robot when the route is completed
         }
         mine_found = 0;
     }
@@ -424,8 +438,12 @@ int main_a(void)
     while(route[i].cross != 'e')                                                        //print the crossroad array
     {
         printf("%c%d%d ", route[i].cross, route[i].row, route[i].column);
+        route[i].cross = 0;
+        route[i].row = 0;
+        route[i].column = 0;
         i++;
     }
+    route[i].cross = 0;
     return 0;
 }
 
