@@ -174,7 +174,7 @@ int found = 0;
 int i = 12, j = 4, a = 0;
 int m =0, n = 0;
 
-print_maze();
+//print_maze();
 
 while (mines < 13)
 {  
@@ -201,7 +201,7 @@ while (mines < 13)
         a++;
     }
 
-    print_maze();
+    //print_maze();
 
    for(m = 0; m < 13; m++)
    {
@@ -213,7 +213,7 @@ while (mines < 13)
                     }
             }
    }
-   print_maze();
+   //print_maze();
 }
 
 
