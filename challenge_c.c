@@ -18,6 +18,7 @@ int maze[13][13] = {                                                            
     {-1, -1, -1, -1, 0, -1,-1, -1,-1, -1, -1, -1, -1}
 };
 int done[13][13] = {0};
+int save[13][13] = {0};
 struct Destination {
     int row, column, previous_row, previous_column;
 };
@@ -53,9 +54,17 @@ struct Destination route_finder(int i_current, int j_current)                   
     done[i][j] = 1;
     
     while(found == 0)
-    {
+    {   
+        if (found == 1)
+        {
+            break;
+        }
         for(int k = 0; k < 13; k++)
         {
+            if (found == 1)
+            {
+                break;
+            }
             for(int l = 0; l< 13; l++)
             {
                 if(maze[k][l] == index)
@@ -70,6 +79,7 @@ struct Destination route_finder(int i_current, int j_current)                   
                                 found = 1;
                                 target.previous_row = k;
                                 target.previous_column = l;
+                                maze[k][l-2] = index + 2;
                                 break;
                             }
                     }
@@ -83,6 +93,7 @@ struct Destination route_finder(int i_current, int j_current)                   
                                 found = 1;
                                 target.previous_row = k;
                                 target.previous_column = l;
+                                maze[k-2][l] = index + 2;
                                 break;
                             }
                     }
@@ -92,10 +103,11 @@ struct Destination route_finder(int i_current, int j_current)                   
                         if (done[k][l+1] == 0 && l < 13)
                             {
                                 target.row = k;
-                                target.column = l+ + 2 ;
+                                target.column = l + 2 ;
                                 found = 1;
                                 target.previous_row = k;
                                 target.previous_column = l;
+                                maze[k][l+2] = index + 2;
                                 break;
                             }
                     }
@@ -109,6 +121,7 @@ struct Destination route_finder(int i_current, int j_current)                   
                                 found = 1;
                                 target.previous_row = k;
                                 target.previous_column = l;
+                                maze[k+2][l] = index + 2;
                                 break;
                             }
                     }
@@ -117,7 +130,7 @@ struct Destination route_finder(int i_current, int j_current)                   
          
             }
         }
-      index++;  
+    index++;  
     }
     
     return target;
@@ -125,48 +138,100 @@ struct Destination route_finder(int i_current, int j_current)                   
 
 int route_define(int i_current, int j_current, int i_target, int j_target)                              //function that maps the crossroads in the chosen route into an array
 {   
-    int index = maze[i_current][j_current];
-    int i = i_current;
-    int j = j_current;
-    int amount = 0;
+    int index = maze[i_target][j_target];
+    int i = i_target;
+    int j = j_target;
+    int amount = 0, condition =1;
+    int z = 0;
     
-    while(maze[i][j] != 0)                                                                    //go from the highest value at the beginning, down to the end where the index is low
+    while(maze[i][j] != maze[i_current][j_current])                                                                    //go from the highest value at the beginning, down to the end where the index is low
     {
 
-        if(maze[i+1][j] == index + 1)                                                   //find in which place is the lower value to go to next
+        if(maze[i][j-1] == index - 1)                                                   //find in which place is the lower value to go to next
         {   
-            done[i+1][j] = 1;
-            i = i + 2; 
+            if (done[i][j-1] == 0 || condition == 0)
+                {   
+                    save[i][j-1] = 1;
+                    j = j - 2; 
+                    index = index - 2;
+                    condition =  0;
+                }
             
         }
-        else if(maze[i][j+1] == index + 1)
+        if(maze[i-1][j] == index - 1)
         {   
-            done[i][j+1] = 1;
-            j = j + 2; 
-            
+            if (done[i-1][j] == 0 || condition == 0)
+                {   
+                    save[i-1][j] = 1;
+                    i = i - 2; 
+                    index = index - 2;
+                    condition =  0;
+                }
+          
         }
-        else if(maze[i-1][j] == index + 1)
+        if(maze[i][j+1] == index - 1)
         {   
-            done[i-1][j] = 1;
-            i = i - 2; 
-            
+            if (done[i][j+1] == 0 || condition == 0)
+                {   
+                    save[i][j+1] = 1;
+                    j = j + 2; 
+                    index = index - 2;
+                    condition =  0;
+                }
         }
-        else if(maze[i][j-1] == index + 1)
+        if(maze[i+1][j] == index - 1)
+        {   
+            if (done[i+1][j] == 0 || condition == 0)
+                {   
+                    save[i+1][j] = 1;
+                    i = i + 2; 
+                    index = index - 2;
+                    condition =  0;
+                }
+        }
+
+    }
+
+    while(maze[i][j] != maze[i_target][j_target] || maze[i][j] != 0)                                                                    //go from the highest value at the beginning, down to the end where the index is low
+    {   
+        if(z == 0)
+            {
+                index = 2;
+                z = 1;
+            }
+
+        if(maze[i][j-1] == index + 1 && save[i][j-1] == 1)                                                   //find in which place is the lower value to go to next
         {   
             done[i][j-1] = 1;
             j = j - 2; 
-            
+        }
+        else if(maze[i-1][j] == index + 1 && save[i-1][j] == 1)
+        {   
+            done[i-1][j] = 1;
+            i = i - 2; 
+        }
+        else if(maze[i][j+1] == index + 1 && save[i][j+1] == 1)
+        {   
+            done[i][j+1] = 1;
+            j = j + 2; 
+        }
+        else if(maze[i+1][j] == index + 1 && save[i+1][j] == 1)
+        {   
+            done[i+1][j] = 1;
+            i = i + 2; 
         }
 
-        if (maze[i][j] == 0)
+        route_cross[amount] = 'c';                                                  //if a crossroad is passed it should be placed in the array
+        route_row[amount] = (i - 2)/2;
+        route_column[amount] = (j - 2)/2;
+        amount++; 
+        
+        index++;    
+        
+        if (maze[i][j] == maze[i_target][j_target])
             {
-            route_cross[amount] = 'c';                                                  //if a crossroad is passed it should be placed in the array
-            route_row[amount] = (i - 2)/2;
-            route_column[amount] = (j - 2)/2;
-            amount++; 
+                break;
             }
-    //printf("%c", ' ');
-    index++;                                                                        //lower index value, so it goes to the next maze cell
     }
 
     route_cross[amount] = 'e';  
@@ -180,7 +245,7 @@ int main ()
 int mines = 0;
 int found = 0;
 int i = 12, j = 4, a;
-int m =0, n = 0;
+int m =0, n = 0, x=0, y=0;
 
 //print_maze();
 
@@ -210,6 +275,16 @@ while (mines < 13)
     }
 
     //print_maze();
+    for(x = 0; x < 13; x++)
+   {
+        for(y = 0; y < 13; y++)
+            {
+                if(save[x][y] == 1)
+                    {
+                        save[x][y] = 0;
+                    }
+            }
+   }
 
    for(m = 0; m < 13; m++)
    {
@@ -221,7 +296,7 @@ while (mines < 13)
                     }
             }
    }
-   //printf("%c", ' ');
+   printf("%c", ' ');
 }
 
 
