@@ -3,19 +3,19 @@
 #include<string.h>
 
 int maze[13][13] = {                                                                    //defining the maze
-    {-1, -1, -1, -1, 0, -1, 0, -1, 0, -1, -1, -1, -1},
-    {-1, -1, -1, -1, 0, -1, 0, -1, 0, -1, -1, -1, -1},
+    {-1, -1, -1, -1,-1, -1,-1, -1,-1, -1, -1, -1, -1},
+    {-1, -1, -1, -1,-1, -1,-1, -1,-1, -1, -1, -1, -1},
     {-1, -1,  0,  0, 0,  0, 0,  0, 0,  0,  0, -1, -1},
     {-1, -1,  0, -1, 0, -1, 0, -1, 0, -1,  0, -1, -1},
-    { 0,  0,  0,  0, 0,  0, 0,  0, 0,  0,  0,  0,  0},
-    {-1, -1,  0, -1, 0, -1, 0, -1, 0, -1,  0, -1, -1},
-    { 0,  0,  0,  0, 0,  0, 0,  0, 0,  0,  0,  0,  0},
-    {-1, -1,  0, -1, 0, -1, 0, -1, 0, -1,  0, -1, -1},
-    { 0,  0,  0,  0, 0,  0, 0,  0, 0,  0,  0,  0,  0},
+    {-1, -1,  0,  0, 0,  0, 0,  0, 0,  0,  0, -1, -1},
     {-1, -1,  0, -1, 0, -1, 0, -1, 0, -1,  0, -1, -1},
     {-1, -1,  0,  0, 0,  0, 0,  0, 0,  0,  0, -1, -1},
-    {-1, -1, -1, -1, 0, -1, 0, -1, 0, -1, -1, -1, -1},
-    {-1, -1, -1, -1, 0, -1, 0, -1, 0, -1, -1, -1, -1}
+    {-1, -1,  0, -1, 0, -1, 0, -1, 0, -1,  0, -1, -1},
+    {-1, -1,  0,  0, 0,  0, 0,  0, 0,  0,  0, -1, -1},
+    {-1, -1,  0, -1, 0, -1, 0, -1, 0, -1,  0, -1, -1},
+    {-1, -1,  0,  0, 0,  0, 0,  0, 0,  0,  0, -1, -1},
+    {-1, -1, -1, -1, 0, -1,-1, -1,-1, -1, -1, -1, -1},
+    {-1, -1, -1, -1, 0, -1,-1, -1,-1, -1, -1, -1, -1}
 };
 int done[13][13] = {0};
 struct Destination {
@@ -70,6 +70,7 @@ struct Destination route_finder(int i_current, int j_current)                   
                                 found = 1;
                                 target.previous_row = k;
                                 target.previous_column = l;
+                                break;
                             }
                     }
                     if(maze[k-1][l] == 0 && k > 0)
@@ -95,6 +96,7 @@ struct Destination route_finder(int i_current, int j_current)                   
                                 found = 1;
                                 target.previous_row = k;
                                 target.previous_column = l;
+                                break;
                             }
                     }
                     if(maze[k+1][l] == 0 && k <12)
@@ -107,8 +109,10 @@ struct Destination route_finder(int i_current, int j_current)                   
                                 found = 1;
                                 target.previous_row = k;
                                 target.previous_column = l;
+                                break;
                             }
                     }
+                   
                 }
          
             }
@@ -131,23 +135,27 @@ int route_define(int i_current, int j_current, int i_target, int j_target)      
 
         if(maze[i+1][j] == index + 1)                                                   //find in which place is the lower value to go to next
         {   
-            i = i + 2; 
             done[i+1][j] = 1;
+            i = i + 2; 
+            
         }
         else if(maze[i][j+1] == index + 1)
         {   
-            j = j + 2; 
             done[i][j+1] = 1;
+            j = j + 2; 
+            
         }
         else if(maze[i-1][j] == index + 1)
         {   
-            i = i - 2; 
             done[i-1][j] = 1;
+            i = i - 2; 
+            
         }
         else if(maze[i][j-1] == index + 1)
         {   
-            j = j - 2; 
             done[i][j-1] = 1;
+            j = j - 2; 
+            
         }
 
         if (maze[i][j] == 0)
@@ -157,8 +165,8 @@ int route_define(int i_current, int j_current, int i_target, int j_target)      
             route_column[amount] = (j - 2)/2;
             amount++; 
             }
-        
-     index++;                                                                        //lower index value, so it goes to the next maze cell
+    //printf("%c", ' ');
+    index++;                                                                        //lower index value, so it goes to the next maze cell
     }
 
     route_cross[amount] = 'e';  
@@ -171,7 +179,7 @@ int main ()
 {
 int mines = 0;
 int found = 0;
-int i = 12, j = 4, a = 0;
+int i = 12, j = 4, a;
 int m =0, n = 0;
 
 //print_maze();
@@ -194,7 +202,7 @@ while (mines < 13)
         j = target.previous_column;
         maze[target.row][target.column] = -1;
     }
-    
+    a = 0;
     while(route_cross[a] != 'e')                                                        
     {
         printf("%c%d%d ", route_cross[a], route_row[a], route_column[a]);
@@ -213,7 +221,7 @@ while (mines < 13)
                     }
             }
    }
-   //print_maze();
+   //printf("%c", ' ');
 }
 
 
