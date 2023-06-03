@@ -226,7 +226,7 @@ int route_define(int i_current, int j_current, int i_target, int j_target)      
         route_column[amount] = (j - 2)/2;
         amount++; 
         
-        index++;    
+        index = index + 2;    
         
         if (maze[i][j] == maze[i_target][j_target])
             {
@@ -296,7 +296,7 @@ while (mines < 13)
                     }
             }
    }
-   printf("%c", ' ');
+   
 }
 
 
