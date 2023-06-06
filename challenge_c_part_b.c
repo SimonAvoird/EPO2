@@ -204,42 +204,42 @@ int route_define(int i_current, int j_current, int i_target, int j_target)
         if(maze[i][j-1] == index + 1 && save[i][j-1] == 1)                                                  
         {   
             done[i][j-1] = 1;
-            j = j - 2; 
             if(maze[i][j-2] == maze[i_target][j_target])
                {
                 mine[0] = i;
                 mine[1] = j-1;
                }
+            j = j - 2; 
         }
         else if(maze[i-1][j] == index + 1 && save[i-1][j] == 1)
         {   
             done[i-1][j] = 1;
-            i = i - 2;
             if(maze[i-2][j] == maze[i_target][j_target])
                {
                 mine[0] = i-1;
                 mine[1] = j;
                }
+            i = i - 2;
         }
         else if(maze[i][j+1] == index + 1 && save[i][j+1] == 1)
         {   
             done[i][j+1] = 1;
-            j = j + 2;
             if(maze[i][j+2] == maze[i_target][j_target])
                {
                 mine[0] = i;
                 mine[1] = j+1;
                }
+            j = j + 2;
         }
         else if(maze[i+1][j] == index + 1 && save[i+1][j] == 1)
         {   
             done[i+1][j] = 1;
-            i = i + 2;
             if(maze[i+2][j] == maze[i_target][j_target])
                {
                 mine[0] = i+1;
                 mine[1] = j;
                }
+            i = i + 2;
         }
 
         route_cross[amount] = 'c';                                                
@@ -290,8 +290,8 @@ while (mines < 14)
         a++;
     }
     
-    mine_x = mine[1];
-    mine_y = mine[2];
+    mine_x = mine[0];
+    mine_y = mine[1];
 
     //here the code should get the input from the robot if there is a mine or not
 
