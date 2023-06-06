@@ -292,12 +292,15 @@ while (mines < 13)
     mine_x = mine[1];
     mine_y = mine[2];
 
+    //here the code should get the input from the robot if there is a mine or not
+
     if (found == 1)
     {
         mines++;
         i = target.previous_row;
         j = target.previous_column;
         maze[mine_x][mine_y] = -1;
+        found = 0;
     }
     
     for(x = 0; x < 13; x++)
