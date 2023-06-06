@@ -268,10 +268,11 @@ int found = 0;
 int i = 12, j = 4, a;
 int m = 0, n = 0, x = 0, y = 0;
 int mine_x = 0, mine_y = 0;
+int p = 0, q = 0, r = 0, s = 0;
 
 
 
-while (mines < 13)
+while (mines < 14)
 {  
     struct Destination target = route_finder(i, j);
 
@@ -324,6 +325,28 @@ while (mines < 13)
                     }
             }
    }
+
+    if(mines == 13)
+    {
+        for(p = 0; p < 13; p++)
+        {
+            for(q = 0; q < 13; q++)
+            {
+                done[p][q] = 0;
+            }
+        }
+
+        for(r = 0; r < 13; r++)
+        {
+            for(s = 0; s < 13; s++)
+            {
+                if (maze[r][s] == -1)
+                {
+                    done[r][s] = 1;
+                }
+            }
+        }
+    }
    
 }
 
