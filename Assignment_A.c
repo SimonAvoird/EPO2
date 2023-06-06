@@ -14,7 +14,7 @@ struct Cross {                                                                  
     int column;
 };
 struct Cross route[25];
-int maze[13][13] = {                                                                    //defining the maze
+const int empty_maze[13][13] = {                                                                    //defining the maze
     {-1, -1, -1, -1, 0, -1, 0, -1, 0, -1, -1, -1, -1},
     {-1, -1, -1, -1, 0, -1, 0, -1, 0, -1, -1, -1, -1},
     {-1, -1,  0,  0, 0,  0, 0,  0, 0,  0,  0, -1, -1},
@@ -29,6 +29,7 @@ int maze[13][13] = {                                                            
     {-1, -1, -1, -1, 0, -1, 0, -1, 0, -1, -1, -1, -1},
     {-1, -1, -1, -1, 0, -1, 0, -1, 0, -1, -1, -1, -1}
 };
+int maze[13][13];
 int cross_in[81];
 char cross_dir[40];
 char output[25][8];
@@ -113,31 +114,6 @@ int writeByte(HANDLE hSerial, char *buffWrite){
 }
 
 
-int field_define(int stop)                                                              //function to put the mines in the array
-{
-    int i,j,l;
-    char k;
-    for(l = 1; l < stop; l = l + 2)
-    {
-        i = cross_in[l];
-        j = cross_in[l+1];
-        k = cross_dir[(l-1)/2];
-        i = 2 * i + 2;
-        j = 2 * j + 2;
-        switch(k)
-        {
-            case 's': 
-                i++;
-                break;
-            case 'e': 
-                j++;
-                break;
-        }
-        maze[i][j] = -1;
-    }
-    return 0;
-}
-
 int route_finder(struct Station begin, struct Station end)                              //this maps all the possible routes, by increasing every number next to the start, and then the next number
 {
     int l,i,j, index = 0;
@@ -200,13 +176,31 @@ struct Station stations(int station)                                            
             break;
     }
     return coords;
-}  
-int route_define(struct Station begin, struct Station end)                              //function that maps the crossroads in the chosen route into an array
+}
+
+int print_maze(void)                                                                    //function to print the whole 2d-maze array
+{
+    for(int i = 0; i < 13; i++) {
+        for(int j = 0; j < 13; j++) {
+            if(maze[i][j] < 0 || maze[i][j] > 9)
+            {
+                printf(" %d", maze[i][j]);
+            }
+            else
+            {
+                printf("  %d", maze[i][j]);
+            }
+        }
+        printf("\n");
+    }
+}
+
+int route_define(struct Station begin, struct Station end, int amount)                              //function that maps the crossroads in the chosen route into an array
 {
     int index = maze[begin.row][begin.column];
     int i = begin.row;
     int j = begin.column;
-    int amount = 0;
+    
     while(index > 0)                                                                    //go from the highest value at the beginning, down to the end where the index is low
     {
         if((i % 2 == 0) && (j % 2 == 0) && (i != 0) && (i != 12) && (j != 0) && (j != 12))
@@ -234,124 +228,29 @@ int route_define(struct Station begin, struct Station end)                      
         }
         index--;                                                                        //lower index value, so it goes to the next maze cell
     }
-    route[amount].cross = 'e';                                                          //end of input in the array
-    return 0;
-}
-int print_maze(void)                                                                    //function to print the whole 2d-maze array
-{
-    for(int i = 0; i < 13; i++) {
-        for(int j = 0; j < 13; j++) {
-            if(maze[i][j] < 0 || maze[i][j] > 9)
-            {
-                printf(" %d", maze[i][j]);
-            }
-            else
-            {
-                printf("  %d", maze[i][j]);
-            }
-        }
-        printf("\n");
-    }
-}
-
-int direction(void)
-{
-    int i,j, x = 0, y;
-    int n=0,e=0,s=0,w=0;
-    char direction;
-    while(x==0)
-    {
-            switch(maze[i][j-1])
-            {
-                case(0):
-                    direction = 'w';
-                    x=1;
-                    break;
-                case(-1):
-                    n = -1;
-                    break;
-                case(1):
-                    n = 1;
-                    break;
-                if(x==1)
-                {
-                    break;
-                }
-            }
-
-            switch(maze[i-1][j])
-            {
-                case(0):
-                    direction = 'n';
-                    x=1;
-                    break;
-                case(-1):
-                    n = -1;
-                    break;
-                case(1):
-                    n = 1;
-                    break;
-                if(x==1)
-                {
-                    break;
-                }
-            }
-
-            switch(maze[i][j+1])
-            {
-                case(0):
-                    direction = 'e';
-                    x=1;
-                    break;
-                case(-1):
-                    n = -1;
-                    break;
-                case(1):
-                    n = 1;
-                    break;
-                if(x==1)
-                {
-                    break;
-                }
-            }
-            switch(maze[i+1][j])
-            {
-                case(0):
-                    direction = 's';
-                    x=1;
-                    break;
-                case(-1):
-                    n = -1;
-                    break;
-                case(1):
-                    n = 1;
-                    break;
-                if(x==1)
-                {
-                    break;
-                }
-            }
-    } 
-    
+    return amount;
 }
 
 int route_maker(void)
 {
-    int k = 0, i = 0,stop, begin_station, end_station;
-    print_maze();                                                                       //print the initial maze
-    /*scanf("%d", &cross_in[0]);                                                          //scan the amount of mines
-    stop = cross_in[0]*2 + 1;                                                           //calculate the needed amount of values in the location array
-    for(k = 1; k < stop; k = k + 2)
+    int station[4];
+    int k = 0, i = 0, amount = 0;
+    scanf("%d %d %d %d", &station[0], &station[1], &station[2], &station[3]);                                       //scan for begin and end
+    for( k = 0; k<3;k++)
     {
-        scanf("%d %d %c", &cross_in[k], &cross_in[k+1], &cross_dir[(k-1)/2]);           //scan for the locations of the mines
-    }*/
-    scanf("%d %d", &begin_station, &end_station);                                       //scan for begin and end
-    field_define(stop);                                                                 //put the mines in the 2d-maze array
-    struct Station begin = stations(begin_station);
-    struct Station end = stations(end_station);                                         //change the station values into station coordinates
-    route_finder(begin, end);                                                           //map the possible routes
-    print_maze();                                                                       //print the maze with the mines and the possible routes
-    route_define(begin, end);                                                           //choose a route and put the crossroads in an array
+        for(int l = 0; l<13;l++)
+        {
+            for(int m = 0; m<13; m++)
+            {
+                maze[l][m] = empty_maze[l][m];
+            }
+        }
+        struct Station begin = stations(station[k]);
+        struct Station end = stations(station[k+1]);                                        //change the station values into station coordinates
+        route_finder(begin, end);                                                           //map the possible routes
+        amount = route_define(begin, end, amount);                                          //choose a route and put the crossroads in an array
+    }
+    route[amount].cross = 'e';                                                          //end of input in the array
     while(route[i].cross != 'e')                                                        //print the crossroad array
     {
         printf("%c%d%d ", route[i].cross, route[i].row, route[i].column);
@@ -443,7 +342,7 @@ int synth_output(void)
             byteBuffer[0] += pow(2, (7-k))*output[k];
         }
         writeByte(hSerial, byteBuffer);
-        Sleep(3000);
+        Sleep(500);
         i++;
     }
     CloseHandle(hSerial);
