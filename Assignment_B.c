@@ -14,7 +14,7 @@ struct Cross {                                                                  
     int column;
 };
 struct Cross route[25];
-int maze[13][13] = {                                                                    //defining the maze
+const int empty_maze[13][13] = {                                                                    //defining the maze
     {-1, -1, -1, -1, 0, -1, 0, -1, 0, -1, -1, -1, -1},
     {-1, -1, -1, -1, 0, -1, 0, -1, 0, -1, -1, -1, -1},
     {-1, -1,  0,  0, 0,  0, 0,  0, 0,  0,  0, -1, -1},
@@ -29,6 +29,7 @@ int maze[13][13] = {                                                            
     {-1, -1, -1, -1, 0, -1, 0, -1, 0, -1, -1, -1, -1},
     {-1, -1, -1, -1, 0, -1, 0, -1, 0, -1, -1, -1, -1}
 };
+int maze[13][13];
 int cross_in[81];
 char cross_dir[40];
 char output[25][8];
@@ -201,12 +202,12 @@ struct Station stations(int station)                                            
     }
     return coords;
 }  
-int route_define(struct Station begin, struct Station end)                              //function that maps the crossroads in the chosen route into an array
+int route_define(struct Station begin, struct Station end, int amount)                              //function that maps the crossroads in the chosen route into an array
 {
     int index = maze[begin.row][begin.column];
     int i = begin.row;
     int j = begin.column;
-    int amount = 0;
+    
     while(index > 0)                                                                    //go from the highest value at the beginning, down to the end where the index is low
     {
         if((i % 2 == 0) && (j % 2 == 0) && (i != 0) && (i != 12) && (j != 0) && (j != 12))
@@ -234,9 +235,10 @@ int route_define(struct Station begin, struct Station end)                      
         }
         index--;                                                                        //lower index value, so it goes to the next maze cell
     }
-    route[amount].cross = 'e';                                                          //end of input in the array
-    return 0;
+    return amount;
 }
+
+
 int print_maze(void)                                                                    //function to print the whole 2d-maze array
 {
     for(int i = 0; i < 13; i++) {
@@ -335,30 +337,6 @@ int direction(void)
     
 }
 
-int route_maker(void)
-{
-    int k = 0, i = 0,stop, begin_station, end_station;
-    print_maze();                                                                       //print the initial maze
-    /*scanf("%d", &cross_in[0]);                                                          //scan the amount of mines
-    stop = cross_in[0]*2 + 1;                                                           //calculate the needed amount of values in the location array
-    for(k = 1; k < stop; k = k + 2)
-    {
-        scanf("%d %d %c", &cross_in[k], &cross_in[k+1], &cross_dir[(k-1)/2]);           //scan for the locations of the mines
-    }*/
-    scanf("%d %d", &begin_station, &end_station);                                       //scan for begin and end
-    field_define(stop);                                                                 //put the mines in the 2d-maze array
-    struct Station begin = stations(begin_station);
-    struct Station end = stations(end_station);                                         //change the station values into station coordinates
-    route_finder(begin, end);                                                           //map the possible routes
-    print_maze();                                                                       //print the maze with the mines and the possible routes
-    route_define(begin, end);                                                           //choose a route and put the crossroads in an array
-    while(route[i].cross != 'e')                                                        //print the crossroad array
-    {
-        printf("%c%d%d ", route[i].cross, route[i].row, route[i].column);
-        i++;
-    }
-}
-
 int synth_output(void)
 {
     int i = 0, row, column;
@@ -449,8 +427,123 @@ int synth_output(void)
     CloseHandle(hSerial);
     return 0;
 }
+
+struct Station wait_input()
+{
+    int input[8];
+    HANDLE hSerial;
+    struct Station placement;
+
+    char byteBuffer[BUFSIZ+1] = {0};
+
+    //----------------------------------------------------------
+    // Open COMPORT for reading and writing
+    //----------------------------------------------------------
+    hSerial = CreateFile(COMPORT,
+        GENERIC_READ | GENERIC_WRITE,
+        0,
+        0,
+        OPEN_EXISTING,
+        FILE_ATTRIBUTE_NORMAL,
+        0
+    );
+
+    if(hSerial == INVALID_HANDLE_VALUE){
+        if(GetLastError()== ERROR_FILE_NOT_FOUND){
+            //serial port does not exist. Inform user.
+            printf(" serial port does not exist \n");
+        }
+        //some other error occurred. Inform user.
+        printf(" some other error occured. Inform user.\n");
+    }
+
+    //----------------------------------------------------------
+    // Initialize the parameters of the COM port
+    //----------------------------------------------------------
+
+    initSio(hSerial);
+
+    while(byteBuffer[0] == 0)
+    {
+        readByte(hSerial, byteBuffer);
+    }
+    atoi(itoa(byteBuffer[0], input, 2));
+    cross_in[0] = 0;
+    cross_in[1] = 0;
+    for(int i = 0; i < 3; i++)
+    {
+        cross_in[0] += pow(2, 2-i)*input[i];
+        placement.row = cross_in[0];
+    }
+    for(int i = 3; i < 5; i++)
+    {
+        cross_in[1] += pow(2, 5-i)*input[i];
+        placement.column = cross_in[1];
+    }
+    if(input[7] == 1)
+    {
+        cross_dir[0] = 's';
+    }
+    else 
+    {
+        cross_dir[0] = 'e';
+    }
+    return placement;
+} 
+
 int main(void)
 {
+    struct Station begin, end;
+    int station[4];
+    int k = 0, i = 0, amount = 0;
+    scanf("%d %d %d %d", &station[0], &station[1], &station[2], &station[3]);                                       //scan for begin and end
+    for( k = 0; k<3;k++)
+    {
+        for(int l = 0; l<13;l++)
+        {
+            for(int m = 0; m<13; m++)
+            {
+                maze[l][m] = empty_maze[l][m];
+            }
+        }
+        begin = stations(station[k]);
+        end = stations(station[k+1]);                                        //change the station values into station coordinates
+        route_finder(begin, end);                                                           //map the possible routes
+        amount = route_define(begin, end, amount);                                          //choose a route and put the crossroads in an array
+    }
+    route[amount].cross = 'e';
+    while(route[i].cross != 'e')                                                        //print the crossroad array
+    {
+        printf("%c%d%d ", route[i].cross, route[i].row, route[i].column);
+        i++;
+    }
     route_maker();
     synth_output();
+    i = 0;
+    while(1)
+    {
+        wait_input();
+        begin = field_define(2);
+        for( k = 0; k<3;k++)
+        {
+            for(int l = 0; l<13;l++)
+            {
+                for(int m = 0; m<13; m++)
+                {
+                    maze[l][m] = empty_maze[l][m];
+                }
+            }
+            begin = stations(station[k]);
+            end = stations(station[k+1]);                                        //change the station values into station coordinates
+            route_finder(begin, end);                                                           //map the possible routes
+            amount = route_define(begin, end, amount);                                          //choose a route and put the crossroads in an array
+        }
+        route[amount].cross = 'e';
+        while(route[i].cross != 'e')                                                        //print the crossroad array
+        {
+            printf("%c%d%d ", route[i].cross, route[i].row, route[i].column);
+            i++;
+        }
+
+
 }
