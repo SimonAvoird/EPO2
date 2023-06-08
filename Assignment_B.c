@@ -38,6 +38,7 @@ char output[25][8];
 #define COMPORT "COM5"
 #define BAUDRATE CBR_9600
 
+
 //--------------------------------------------------------------
 // Function: initSio
 // Description: intializes the parameters as Baudrate, Bytesize, 
@@ -112,6 +113,8 @@ int writeByte(HANDLE hSerial, char *buffWrite){
 
     return(0);
 }
+
+HANDLE hSerial;
 
 
 int field_define(int stop)                                                              //function to put the mines in the array
@@ -337,43 +340,33 @@ int direction(void)
     
 }
 
+int bernoulli(double p) {                   //This is only for testing
+    double r = (double)rand() / RAND_MAX;
+    if (r < p)
+        return 1; // Success
+    else
+        return 0; // Failure
+}
+
 int synth_output(void)
 {
     int i = 0, row, column;
     int output[8] = {0};
-    HANDLE hSerial;
 
     char byteBuffer[BUFSIZ+1] = {0};
 
-    //----------------------------------------------------------
-    // Open COMPORT for reading and writing
-    //----------------------------------------------------------
-    hSerial = CreateFile(COMPORT,
-        GENERIC_READ | GENERIC_WRITE,
-        0,
-        0,
-        OPEN_EXISTING,
-        FILE_ATTRIBUTE_NORMAL,
-        0
-    );
-
-    if(hSerial == INVALID_HANDLE_VALUE){
-        if(GetLastError()== ERROR_FILE_NOT_FOUND){
-            //serial port does not exist. Inform user.
-            printf(" serial port does not exist \n");
-        }
-        //some other error occurred. Inform user.
-        printf(" some other error occured. Inform user.\n");
-    }
-
-    //----------------------------------------------------------
-    // Initialize the parameters of the COM port
-    //----------------------------------------------------------
-
-    initSio(hSerial);
+    
 
     while(route[i].cross != 'e')
     {
+        if(route[i].cross == 't')
+        {
+            for(int j = 0; j < 8; j++)
+            {
+                output[j] = 1;
+            }
+            goto send;
+        }
         row = route[i].row;
         column = route[i].column;
         for(int j = 2; j >-1; j--)
@@ -415,27 +408,59 @@ int synth_output(void)
                 output[j] = 0;
             }
         }
+        send:
         byteBuffer[0] = 0;
         for(int k=0; k<8; k++)
         {
             byteBuffer[0] += pow(2, (7-k))*output[k];
         }
         writeByte(hSerial, byteBuffer);
-        Sleep(3000);
+        Sleep(500);
         i++;
     }
-    CloseHandle(hSerial);
     return 0;
 }
 
 struct Station wait_input()
 {
-    int input[8];
-    HANDLE hSerial;
+    char input[1][8] = {0};
     struct Station placement;
 
     char byteBuffer[BUFSIZ+1] = {0};
 
+    /*initSio(hSerial);
+    
+    while(byteBuffer[0] == 0)
+    {
+        readByte(hSerial, byteBuffer);
+    }
+    atoi(itoa(byteBuffer[0], input[1], 2));
+    cross_in[0] = 0;
+    cross_in[1] = 0;
+    for(int i = 0; i < 3; i++)
+    {
+        cross_in[0] += pow(2, 2-i)*input[1][i];
+        placement.row = cross_in[0];
+    }
+    for(int i = 3; i < 5; i++)
+    {
+        cross_in[1] += pow(2, 5-i)*input[1][i];
+        placement.column = cross_in[1];
+    }*/
+    if(bernoulli(0.9) == 1)
+    {
+        cross_dir[0] = 's';
+    }
+    else 
+    {
+        cross_dir[0] = 'e';
+    }
+    return placement;
+} 
+
+
+int main(void)
+{
     //----------------------------------------------------------
     // Open COMPORT for reading and writing
     //----------------------------------------------------------
@@ -462,43 +487,39 @@ struct Station wait_input()
     //----------------------------------------------------------
 
     initSio(hSerial);
-
-    while(byteBuffer[0] == 0)
-    {
-        readByte(hSerial, byteBuffer);
-    }
-    atoi(itoa(byteBuffer[0], input, 2));
-    cross_in[0] = 0;
-    cross_in[1] = 0;
-    for(int i = 0; i < 3; i++)
-    {
-        cross_in[0] += pow(2, 2-i)*input[i];
-        placement.row = cross_in[0];
-    }
-    for(int i = 3; i < 5; i++)
-    {
-        cross_in[1] += pow(2, 5-i)*input[i];
-        placement.column = cross_in[1];
-    }
-    if(input[7] == 1)
-    {
-        cross_dir[0] = 's';
-    }
-    else 
-    {
-        cross_dir[0] = 'e';
-    }
-    return placement;
-} 
-
-int main(void)
-{
     struct Station begin, end;
     int station[4];
     int k = 0, i = 0, amount = 0;
     scanf("%d %d %d %d", &station[0], &station[1], &station[2], &station[3]);                                       //scan for begin and end
-    for( k = 0; k<3;k++)
+    no_mine:
+    for(int l = 0; l<13;l++)
     {
+        for(int m = 0; m<13; m++)
+        {
+            maze[l][m] = empty_maze[l][m];
+        }
+    }
+    begin = stations(station[k]);
+    end = stations(station[k+1]);                                        //change the station values into station coordinates
+    route_finder(begin, end);                                                           //map the possible routes
+    amount = route_define(begin, end, amount);                                          //choose a route and put the crossroads in an array
+    route[amount].cross = 't';
+    amount++;
+    route[amount].cross = 'e';
+    synth_output();
+    while(route[i].cross != 'e')                                                        //print the crossroad array
+    {
+        printf("%c%d%d ", route[i].cross, route[i].row, route[i].column);
+        route[i].cross = route[i].row = route[i].column = 0;
+        i++;
+    }
+    route[i].cross = route[i].row = route[i].column = 0;
+    amount = 0;
+    begin = wait_input();
+    if(cross_dir[0] == 's')
+    {
+        printf("mine_encountered");
+        field_define(2);
         for(int l = 0; l<13;l++)
         {
             for(int m = 0; m<13; m++)
@@ -510,40 +531,25 @@ int main(void)
         end = stations(station[k+1]);                                        //change the station values into station coordinates
         route_finder(begin, end);                                                           //map the possible routes
         amount = route_define(begin, end, amount);                                          //choose a route and put the crossroads in an array
-    }
-    route[amount].cross = 'e';
-    while(route[i].cross != 'e')                                                        //print the crossroad array
-    {
-        printf("%c%d%d ", route[i].cross, route[i].row, route[i].column);
-        i++;
-    }
-    route_maker();
-    synth_output();
-    i = 0;
-    while(1)
-    {
-        wait_input();
-        begin = field_define(2);
-        for( k = 0; k<3;k++)
-        {
-            for(int l = 0; l<13;l++)
-            {
-                for(int m = 0; m<13; m++)
-                {
-                    maze[l][m] = empty_maze[l][m];
-                }
-            }
-            begin = stations(station[k]);
-            end = stations(station[k+1]);                                        //change the station values into station coordinates
-            route_finder(begin, end);                                                           //map the possible routes
-            amount = route_define(begin, end, amount);                                          //choose a route and put the crossroads in an array
-        }
+        route[amount].cross = 't';
+        amount++;
         route[amount].cross = 'e';
+        synth_output();
         while(route[i].cross != 'e')                                                        //print the crossroad array
         {
             printf("%c%d%d ", route[i].cross, route[i].row, route[i].column);
+            route[i].cross = route[i].row = route[i].column = 0;
             i++;
         }
-
+        route[i].cross = route[i].row = route[i].column = 0;
+        amount = 0;
+    }
+    else
+    {
+        printf("no mine");
+        k++;
+        goto no_mine;
+    }
+    CloseHandle(hSerial);
 
 }

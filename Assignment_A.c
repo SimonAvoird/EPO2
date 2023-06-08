@@ -249,6 +249,8 @@ int route_maker(void)
         struct Station end = stations(station[k+1]);                                        //change the station values into station coordinates
         route_finder(begin, end);                                                           //map the possible routes
         amount = route_define(begin, end, amount);                                          //choose a route and put the crossroads in an array
+        route[amount].cross = 't';
+        amount++;
     }
     route[amount].cross = 'e';                                                          //end of input in the array
     while(route[i].cross != 'e')                                                        //print the crossroad array
@@ -295,6 +297,14 @@ int synth_output(void)
 
     while(route[i].cross != 'e')
     {
+        if(route[i].cross == 't')
+        {
+            for(int j = 0; j < 8; j++)
+            {
+                output[j] = 1;
+            }
+            goto send;
+        }
         row = route[i].row;
         column = route[i].column;
         for(int j = 2; j >-1; j--)
@@ -336,6 +346,7 @@ int synth_output(void)
                 output[j] = 0;
             }
         }
+        send:
         byteBuffer[0] = 0;
         for(int k=0; k<8; k++)
         {
