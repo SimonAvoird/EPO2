@@ -496,7 +496,7 @@ int main(void)
     struct Station begin, end;
     int station[4];
     int k = 0, i = 0, amount = 0;
-    scanf("%d %d %d %d", &station[0], &station[1], &station[2], &station[3]);                                       //scan for begin and end
+    scanf("%d %d %d %d", &station[0], &station[1], &station[2], &station[3]);  //scan for begin and end
     for( k = 0; k<3;k++)
     {
         for(int l = 0; l<13;l++)
