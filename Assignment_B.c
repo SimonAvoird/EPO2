@@ -5,10 +5,10 @@
 #include <wchar.h>
 #include <math.h>
 
-struct Station {                                                                        //the structure for the station coordinates
+struct Station { //the structure for the station coordinates
     int row,column;
 };
-struct Cross {                                                                          //the structure for the final route
+struct Cross { //the structure for the final route
     char cross;
     int row;
     int column;
@@ -117,7 +117,7 @@ int writeByte(HANDLE hSerial, char *buffWrite){
 HANDLE hSerial;
 
 
-int field_define(int stop)                                                              //function to put the mines in the array
+int field_define(int stop) //function to put the mines in the array
 {
     int i,j,l;
     char k;
@@ -142,8 +142,8 @@ int field_define(int stop)                                                      
     return 0;
 }
 
-int route_finder(struct Station begin, struct Station end)                              //this maps all the possible routes, by increasing every number next to the start, and then the next number
-{
+int route_finder(struct Station begin, struct Station end) //this maps all the possible routes,
+{                      //by increasing every number next to the start, and then the next number
     int l,i,j, index = 0;
     i = end.row;
     j = end.column;
@@ -181,8 +181,8 @@ int route_finder(struct Station begin, struct Station end)                      
     return 0;
 }
 
-struct Station stations(int station)                                                    // this converts the station number from the input to an array of coordinates in the matrix
-{
+struct Station stations(int station) // this converts the station number from the input
+{                                   // to an array of coordinates in the matrix
     struct Station coords;
     switch(station)
     {
@@ -211,16 +211,16 @@ int route_define(struct Station begin, struct Station end, int amount)          
     int i = begin.row;
     int j = begin.column;
     
-    while(index > 0)                                                                    //go from the highest value at the beginning, down to the end where the index is low
+    while(index > 0) //go from the highest value at the beginning, down to the end where the index is low
     {
         if((i % 2 == 0) && (j % 2 == 0) && (i != 0) && (i != 12) && (j != 0) && (j != 12))
         {
-            route[amount].cross = 'c';                                                  //if a crossroad is passed it should be placed in the array
+            route[amount].cross = 'c'; //if a crossroad is passed it should be placed in the array
             route[amount].row = (i - 2)/2;
             route[amount].column = (j-2)/2;
             amount++; 
         }
-        if(maze[i+1][j] == index - 1)                                                   //find in which place is the lower value to go to next
+        if(maze[i+1][j] == index - 1) //find in which place is the lower value to go to next
         {   
             i++; 
         }
@@ -236,13 +236,13 @@ int route_define(struct Station begin, struct Station end, int amount)          
         {   
             j--; 
         }
-        index--;                                                                        //lower index value, so it goes to the next maze cell
+        index--; //lower index value, so it goes to the next maze cell
     }
     return amount;
 }
 
 
-int print_maze(void)                                                                    //function to print the whole 2d-maze array
+int print_maze(void)  //function to print the whole 2d-maze array
 {
     for(int i = 0; i < 13; i++) {
         for(int j = 0; j < 13; j++) {
