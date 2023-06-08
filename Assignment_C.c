@@ -327,6 +327,5 @@ while (mines < 13)
    
 }
 
-
 return 0;
 }
