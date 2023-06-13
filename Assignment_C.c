@@ -27,6 +27,12 @@ struct Destination {
 char route_cross[25];
 int route_row[25];
 int route_column[25];
+struct Cross{
+    char cross;
+    int row, column;
+};
+struct Cross route[100];
+int route_dir[100];
 
 int print_maze(void)                                                                    
 {
@@ -260,72 +266,132 @@ int route_define(int i_current, int j_current, int i_target, int j_target)
     return 0;
     
 }
-
-int main ()
+int direction(void)
 {
-int mines = 0;
-int found = 0;
-int i = 12, j = 4, a;
-int m = 0, n = 0, x = 0, y = 0;
-int mine_x = 0, mine_y = 0;
-
-
-
-while (mines < 13)
-{  
-    struct Destination target = route_finder(i, j);
-
-    
-    route_define(i, j, target.row, target.column);
-
-
-    i = target.row;
-    j = target.column;
-    
-    a = 0;
-    while(route_cross[a] != 'e')                                                        
+    int dir_car = 1, dir_route, i = 0;
+    while(route[i+1].cross != 'e')
     {
-        printf("%c%d%d ", route_cross[a], route_row[a], route_column[a]);
-        a++;
-    }
-    
-    mine_x = mine[0];
-    mine_y = mine[1];
-
-    //here the code should get the input from the robot if there is a mine or not
-
-    if (found == 1)
-    {
-        mines++;
-        i = target.previous_row;
-        j = target.previous_column;
-        maze[mine_x][mine_y] = -1;
-        found = 0;
-    }
-    
-    for(x = 0; x < 13; x++)
-   {
-        for(y = 0; y < 13; y++)
+        if(route[i].cross == 'm')
+        {
+            dir_car = dir_car - 2;
+            if (dir_car < 0)
             {
-                if(save[x][y] == 1)
-                    {
-                        save[x][y] = 0;
-                    }
+                dir_car += 4;
             }
-   }
-
-   for(m = 0; m < 13; m++)
-   {
-        for(n = 0; n < 13; n++)
+            i++;
+        }
+        if(route[i].row != route[i+1].row)
+        {
+            if(route[i].row < route[i+1].row)
             {
-                if(maze[m][n] > 1)
-                    {
-                        maze[m][n] = 0;
-                    }
+                dir_route = 3;
             }
-   }
-   
+            else
+            {
+                dir_route = 1;
+            }
+        }
+        else
+        {
+            if(route[i].column < route[i+1].column)
+            {
+                dir_route = 2;
+            }
+            else
+            {
+                dir_route = 4;
+            }
+        }
+        route_dir[i] = dir_car - dir_route;
+        if(route_dir[i] < 0)
+        {
+            route_dir[i] = route_dir[i] + 4;
+        }
+        /*if(route[i].cross = 't')
+        {
+            route_dir[i] = route_dir[i] + 10;
+        }*/
+        dir_car = dir_route;
+        printf("%d,", route_dir[i]);
+        i++;
+    }
+    route_dir[i] = 2;
+    route_dir[i+1] = 99;
+    return 0;
+
 }
 
-return 0;
+int main(void)
+{
+    int mines = 0;
+    int found = 0;
+    int index = 0;
+    int i = 12, j = 4, a;
+    int m = 0, n = 0, x = 0, y = 0;
+    int mine_x = 0, mine_y = 0;
+
+
+
+    while (mines < 13)
+    {  
+        struct Destination target = route_finder(i, j);
+
+        
+        route_define(i, j, target.row, target.column);
+
+
+        i = target.row;
+        j = target.column;
+        
+        a = 0;
+        while(route_cross[a] != 'e')                                                        
+        {
+            route[index].cross = route_cross[a];
+            route[index].row = route_row[a];
+            route[index].column = route_column[a];
+            printf("%c%d%d ", route_cross[a], route_row[a], route_column[a]);
+            a++;
+            index++;
+        }
+        route[index].cross = m;
+        
+        mine_x = mine[0];
+        mine_y = mine[1];
+
+        //here the code should get the input from the robot if there is a mine or not
+
+        if (found == 1)
+        {
+            mines++;
+            i = target.previous_row;
+            j = target.previous_column;
+            maze[mine_x][mine_y] = -1;
+            found = 0;
+        }
+        
+        for(x = 0; x < 13; x++)
+        {
+            for(y = 0; y < 13; y++)
+                {
+                    if(save[x][y] == 1)
+                        {
+                            save[x][y] = 0;
+                        }
+                }
+        }
+
+        for(m = 0; m < 13; m++)
+        {
+            for(n = 0; n < 13; n++)
+                {
+                    if(maze[m][n] > 1)
+                        {
+                            maze[m][n] = 0;
+                        }
+                }
+        }
+    
+    }
+    direction();
+    return 0;
 }

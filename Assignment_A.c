@@ -343,11 +343,11 @@ int synth_output(void)
     //----------------------------------------------------------
 
     initSio(hSerial);
-    while(byteBuffer[0] == 0)
+    while(byteBuffer[0] == 0 && byteBuffer[7] == 0);
     {
         readByte(hSerial, byteBuffer);
     }
-    while(route_dir[i] != '99')
+    while(route_dir[i] != 99)
     {
         for(int j = 0; j<8; j++)
         {
