@@ -14,6 +14,7 @@ struct Cross {                                                                  
     int column;
 };
 struct Cross route[25];
+int route_dir[25];
 const int empty_maze[13][13] = {                                                                    //defining the maze
     {-1, -1, -1, -1, 0, -1, 0, -1, 0, -1, -1, -1, -1},
     {-1, -1, -1, -1, 0, -1, 0, -1, 0, -1, -1, -1, -1},
@@ -206,8 +207,8 @@ int route_define(struct Station begin, struct Station end, int amount)          
         if((i % 2 == 0) && (j % 2 == 0) && (i != 0) && (i != 12) && (j != 0) && (j != 12))
         {
             route[amount].cross = 'c';                                                  //if a crossroad is passed it should be placed in the array
-            route[amount].row = (i - 2)/2;
-            route[amount].column = (j-2)/2;
+            route[amount].row = i/2;
+            route[amount].column = j/2;
             amount++; 
         }
         if(maze[i+1][j] == index - 1)                                                   //find in which place is the lower value to go to next
@@ -250,6 +251,8 @@ int route_maker(void)
         route_finder(begin, end);                                                           //map the possible routes
         amount = route_define(begin, end, amount);                                          //choose a route and put the crossroads in an array
         route[amount].cross = 't';
+        route[amount].row = end.row/2;
+        route[amount].column = end.column/2;
         amount++;
     }
     route[amount].cross = 'e';                                                          //end of input in the array
@@ -258,6 +261,52 @@ int route_maker(void)
         printf("%c%d%d ", route[i].cross, route[i].row, route[i].column);
         i++;
     }
+}
+
+int direction(void)
+{
+    int dir_car = 1, dir_route, i = 0;
+    while(route[i+1].cross != 'e')
+    {
+        if(route[i].row != route[i+1].row)
+        {
+            if(route[i].row < route[i+1].row)
+            {
+                dir_route = 3;
+            }
+            else
+            {
+                dir_route = 1;
+            }
+        }
+        else
+        {
+            if(route[i].column < route[i+1].column)
+            {
+                dir_route = 2;
+            }
+            else
+            {
+                dir_route = 4;
+            }
+        }
+        route_dir[i] = dir_car - dir_route;
+        if(route_dir[i] < 0)
+        {
+            route_dir[i] = route_dir[i] + 4;
+        }
+        /*if(route[i].cross = 't')
+        {
+            route_dir[i] = route_dir[i] + 10;
+        }*/
+        dir_car = dir_route;
+        printf("%d,", route_dir[i]);
+        i++;
+    }
+    route_dir[i] = 2;
+    route_dir[i+1] = 99;
+    return 0;
+
 }
 
 int synth_output(void)
@@ -294,63 +343,34 @@ int synth_output(void)
     //----------------------------------------------------------
 
     initSio(hSerial);
-
-    while(route[i].cross != 'e')
+    while(byteBuffer[0] == 0)
     {
-        if(route[i].cross == 't')
+        readByte(hSerial, byteBuffer);
+    }
+    while(route_dir[i] != '99')
+    {
+        for(int j = 0; j<8; j++)
         {
-            for(int j = 0; j < 8; j++)
-            {
-                output[j] = 1;
-            }
-            goto send;
+            byteBuffer[j] = 0;
         }
-        row = route[i].row;
-        column = route[i].column;
-        for(int j = 2; j >-1; j--)
+        while(byteBuffer[0] == 0)
         {
-            if(row != 0)
-            {
-                if(row % 2 == 0)
-                {    
-                    output[j] = 0;
-                }
-                else
-                {
-                    output[j] = 1;
-                }
-                row = row/2;
-            }
-            else 
-            {
-                output[j] = 0;
-            }
-            
+            readByte(hSerial, byteBuffer);
         }
-        for(int j = 5; j > 2; j--)
+        switch (route_dir[i])
         {
-            if(column != 0)
-            {
-                if(column % 2 == 0)
-                {
-                    output[j] = 0;
-                }
-                else
-                {
-                    output[j] = 1;
-                }
-                column = column/2;
-            }
-            else
-            {
-                output[j] = 0;
-            }
+            case(0):
+            byteBuffer[0] = 1;
+            byteBuffer[1] = 1;
+            case(1):
+            byteBuffer[0] = 1;
+            case(3):
+            byteBuffer[1] = 1;
         }
-        send:
-        byteBuffer[0] = 0;
-        for(int k=0; k<8; k++)
+        if(route_dir[i+1] == 2)
         {
-            byteBuffer[0] += pow(2, (7-k))*output[k];
+            byteBuffer[2] = 1;
+            i++;
         }
         writeByte(hSerial, byteBuffer);
         Sleep(500);
@@ -362,5 +382,6 @@ int synth_output(void)
 int main(void)
 {
     route_maker();
+    direction();
     synth_output();
 }
