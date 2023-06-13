@@ -14,7 +14,7 @@ struct Cross { //the structure for the final route
     int column;
 };
 struct Cross route[25];
-const int empty_maze[13][13] = {                                                                    //defining the maze
+const int empty_maze[13][13] = { //defining the maze
     {-1, -1, -1, -1, 0, -1, 0, -1, 0, -1, -1, -1, -1},
     {-1, -1, -1, -1, 0, -1, 0, -1, 0, -1, -1, -1, -1},
     {-1, -1,  0,  0, 0,  0, 0,  0, 0,  0,  0, -1, -1},
@@ -205,8 +205,8 @@ struct Station stations(int station) // this converts the station number from th
     }
     return coords;
 }  
-int route_define(struct Station begin, struct Station end, int amount)                              //function that maps the crossroads in the chosen route into an array
-{
+int route_define(struct Station begin, struct Station end, int amount) //function that maps the crossroads 
+{                                                                   //in the chosen route into an array
     int index = maze[begin.row][begin.column];
     int i = begin.row;
     int j = begin.column;
@@ -490,7 +490,7 @@ int main(void)
     struct Station begin, end;
     int station[4];
     int k = 0, i = 0, amount = 0;
-    scanf("%d %d %d %d", &station[0], &station[1], &station[2], &station[3]);                                       //scan for begin and end
+    scanf("%d %d %d %d", &station[0], &station[1], &station[2], &station[3]); //scan for begin and end
     route:
     for(int l = 0; l<13;l++)
     {
@@ -500,14 +500,14 @@ int main(void)
         }
     }
     begin = stations(station[k]);
-    end = stations(station[k+1]);                                        //change the station values into station coordinates
-    route_finder(begin, end);                                                           //map the possible routes
-    amount = route_define(begin, end, amount);                                          //choose a route and put the crossroads in an array
+    end = stations(station[k+1]); //change the station values into station coordinates
+    route_finder(begin, end); //map the possible routes
+    amount = route_define(begin, end, amount); //choose a route and put the crossroads in an array
     route[amount].cross = 't';
     amount++;
     route[amount].cross = 'e';
     synth_output();
-    while(route[i].cross != 'e')                                                        //print the crossroad array
+    while(route[i].cross != 'e') //print the crossroad array
     {
         printf("%c%d%d ", route[i].cross, route[i].row, route[i].column);
         route[i].cross = route[i].row = route[i].column = 0;
