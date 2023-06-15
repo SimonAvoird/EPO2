@@ -5,17 +5,17 @@
 #include <wchar.h>
 #include <math.h>
 
-struct Station { //the structure for the station coordinates
+struct Station {                                                                        //the structure for the station coordinates
     int row,column;
 };
-struct Cross { //the structure for the final route
+struct Cross {                                                                          //the structure for the final route
     char cross;
     int row;
     int column;
 };
 struct Cross route[25];
 int route_dir[25];
-const int empty_maze[13][13] = { //defining the maze
+const int empty_maze[13][13] = {                                                                    //defining the maze
     {-1, -1, -1, -1, 0, -1, 0, -1, 0, -1, -1, -1, -1},
     {-1, -1, -1, -1, 0, -1, 0, -1, 0, -1, -1, -1, -1},
     {-1, -1,  0,  0, 0,  0, 0,  0, 0,  0,  0, -1, -1},
@@ -115,8 +115,8 @@ int writeByte(HANDLE hSerial, char *buffWrite){
 }
 
 
-int route_finder(struct Station begin, struct Station end) //this maps all the possible routes,
-{                       // by increasing every number next to the start, and then the next number
+int route_finder(struct Station begin, struct Station end)                              //this maps all the possible routes, by increasing every number next to the start, and then the next number
+{
     int l,i,j, index = 0;
     i = end.row;
     j = end.column;
@@ -154,8 +154,8 @@ int route_finder(struct Station begin, struct Station end) //this maps all the p
     return 0;
 }
 
-struct Station stations(int station) // this converts the station number from the input 
-{                                   //to an array of coordinates in the matrix
+struct Station stations(int station)                                                    // this converts the station number from the input to an array of coordinates in the matrix
+{
     struct Station coords;
     switch(station)
     {
@@ -179,7 +179,7 @@ struct Station stations(int station) // this converts the station number from th
     return coords;
 }
 
-int print_maze(void) //function to print the whole 2d-maze array
+int print_maze(void)                                                                    //function to print the whole 2d-maze array
 {
     for(int i = 0; i < 13; i++) {
         for(int j = 0; j < 13; j++) {
@@ -196,22 +196,22 @@ int print_maze(void) //function to print the whole 2d-maze array
     }
 }
 
-int route_define(struct Station begin, struct Station end, int amount) //function that maps 
-{                                           //the crossroads in the chosen route into an array
+int route_define(struct Station begin, struct Station end, int amount)                              //function that maps the crossroads in the chosen route into an array
+{
     int index = maze[begin.row][begin.column];
     int i = begin.row;
     int j = begin.column;
     
-    while(index > 0)
-    { //go from the highest value at the beginning, down to the end where the index is low
+    while(index > 0)                                                                    //go from the highest value at the beginning, down to the end where the index is low
+    {
         if((i % 2 == 0) && (j % 2 == 0) && (i != 0) && (i != 12) && (j != 0) && (j != 12))
         {
-            route[amount].cross = 'c'; //if a crossroad is passed it should be placed in the array
+            route[amount].cross = 'c';                                                  //if a crossroad is passed it should be placed in the array
             route[amount].row = i/2;
             route[amount].column = j/2;
             amount++; 
         }
-        if(maze[i+1][j] == index - 1)//find in which place is the lower value to go to next
+        if(maze[i+1][j] == index - 1)                                                   //find in which place is the lower value to go to next
         {   
             i++; 
         }
@@ -227,7 +227,7 @@ int route_define(struct Station begin, struct Station end, int amount) //functio
         {   
             j--; 
         }
-        index--; //lower index value, so it goes to the next maze cell
+        index--;                                                                        //lower index value, so it goes to the next maze cell
     }
     return amount;
 }
@@ -236,7 +236,7 @@ int route_maker(void)
 {
     int station[4];
     int k = 0, i = 0, amount = 0;
-    scanf("%d %d %d %d", &station[0], &station[1], &station[2], &station[3]); //scan for begin and end
+    scanf("%d %d %d %d", &station[0], &station[1], &station[2], &station[3]);                                       //scan for begin and end
     for( k = 0; k<3;k++)
     {
         for(int l = 0; l<13;l++)
@@ -247,16 +247,16 @@ int route_maker(void)
             }
         }
         struct Station begin = stations(station[k]);
-        struct Station end = stations(station[k+1]);//change the station values into station coordinates
-        route_finder(begin, end);//map the possible routes
-        amount = route_define(begin, end, amount); //choose a route and put the crossroads in an array
+        struct Station end = stations(station[k+1]);                                        //change the station values into station coordinates
+        route_finder(begin, end);                                                           //map the possible routes
+        amount = route_define(begin, end, amount);                                          //choose a route and put the crossroads in an array
         route[amount].cross = 't';
         route[amount].row = end.row/2;
         route[amount].column = end.column/2;
         amount++;
     }
-    route[amount].cross = 'e';//end of input in the array
-    while(route[i].cross != 'e')//print the crossroad array
+    route[amount].cross = 'e';                                                          //end of input in the array
+    while(route[i].cross != 'e')                                                        //print the crossroad array
     {
         printf("%c%d%d ", route[i].cross, route[i].row, route[i].column);
         i++;
@@ -343,11 +343,7 @@ int synth_output(void)
     //----------------------------------------------------------
 
     initSio(hSerial);
-    while(byteBuffer[0] == 0 && byteBuffer[7] == 0);
-    {
-        readByte(hSerial, byteBuffer);
-    }
-    while(route_dir[i] != 99)
+    while(route_dir[i] != 'e')
     {
         for(int j = 0; j<8; j++)
         {
@@ -357,15 +353,29 @@ int synth_output(void)
         {
             readByte(hSerial, byteBuffer);
         }
+        CloseHandle(hSerial);
+        hSerial = CreateFile(COMPORT,
+        GENERIC_READ | GENERIC_WRITE,
+        0,
+        0,
+        OPEN_EXISTING,
+        FILE_ATTRIBUTE_NORMAL,
+        0
+        );
+        initSio(hSerial);
+        for(int j = 0; j<8; j++)
+        {
+            byteBuffer[j] = 0;
+        }
         switch (route_dir[i])
         {
             case(0):
             byteBuffer[0] = 1;
             byteBuffer[1] = 1;
             case(1):
-            byteBuffer[0] = 1;
-            case(3):
             byteBuffer[1] = 1;
+            case(3):
+            byteBuffer[0] = 1;
         }
         if(route_dir[i+1] == 2)
         {
@@ -373,7 +383,7 @@ int synth_output(void)
             i++;
         }
         writeByte(hSerial, byteBuffer);
-        Sleep(500);
+        Sleep(7000);
         i++;
     }
     CloseHandle(hSerial);
